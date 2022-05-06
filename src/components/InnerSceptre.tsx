@@ -1,6 +1,7 @@
 import React, {FC, ReactElement, useEffect} from "react";
 import {useCountdownTimer} from "../hooks/useCountdownTimer";
 import {atom, useRecoilState} from "recoil";
+import {useInnerSceptre} from "../hooks";
 
 export const idleTimeRemainingInSeconds = atom({
     key: 'IdleTimeRemaining',
@@ -11,6 +12,7 @@ type InnerSceptreWrapperProps = {
     children: ReactElement;
     maxIdleTimeInSeconds?: number;
     timeToExtendInSeconds?: number;
+    serverRequestUri?: string;
     WarningComponent?: FC<WarningComponentProps>;
     ExpiredComponent?: FC<any>;
 }
@@ -20,12 +22,14 @@ export const InnerSceptre: FC<InnerSceptreWrapperProps> = (
         children,
         maxIdleTimeInSeconds = 0,
         timeToExtendInSeconds = 60,
+        serverRequestUri = '/api';
         WarningComponent = DefaultWarningComponent,
         ExpiredComponent = DefaultExpiredComponent
     }
 ): ReactElement => {
     const [maxIdleTime, setMaxIdleTime] = useRecoilState(idleTimeRemainingInSeconds);
     const [secondsUntilSessionTimeout, restartSessionCountdownTimer] = useCountdownTimer();
+    const innerSceptre = useInnerSceptre();
 
     useEffect(() => {
         setMaxIdleTime(maxIdleTimeInSeconds);
@@ -38,7 +42,7 @@ export const InnerSceptre: FC<InnerSceptreWrapperProps> = (
                 (secondsUntilSessionTimeout <= timeToExtendInSeconds) &&
                 (secondsUntilSessionTimeout >= 1) &&
                 <WarningComponent secondsUntilSessionTimeout={secondsUntilSessionTimeout}
-                                  restartSessionCountdownTimer={restartSessionCountdownTimer}
+                                  serverRequest={() => innerSceptre.get(serverRequestUri)}
                 />
             }
             {
@@ -54,7 +58,7 @@ export const InnerSceptre: FC<InnerSceptreWrapperProps> = (
 
 type WarningComponentProps = {
     secondsUntilSessionTimeout: number;
-    restartSessionCountdownTimer: () => void;
+    serverRequest: () => Promise<any>;
 }
 
 const DefaultWarningComponent: FC<WarningComponentProps> = (
@@ -65,7 +69,7 @@ const DefaultWarningComponent: FC<WarningComponentProps> = (
 ): ReactElement => (
     <>
         {secondsUntilSessionTimeout}
-        <button onClick={restartSessionCountdownTimer}>
+        <button onClick={serverRequest}>
             I'M STILL HERE
         </button>
     </>
