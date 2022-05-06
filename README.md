@@ -45,7 +45,7 @@ useEffect(() => {
 
 The useInnerSceptre() hook accepts an optional ***UseInnerSceptreProps*** object.
 
->{
+>{  
   onIntercept: () => void;  
   onErrorIntercept: () => void;  
   axiosConfig: AxiosRequestConfig;  
@@ -101,10 +101,15 @@ The ***<***InnerSceptre***>*** component accepts optional ***InnerSceptreProps**
 > ***Note:*** defaults to 60 seconds if a number is not provided for this prop
 > ***Note:*** this prop is only utilized when **maxIdleTimeInSeconds** > 0
 * serverRequestUri
-> optional uri to a get request from the server. This is used to make a valid and inexpensive request from the server in order to keep the session active.
+> optional uri to a get request from the server
+> ***Note:*** this is used to make a valid and inexpensive request from the server in order to keep the session active
 > ***Note:*** defaults to '/api' if a uri is not provided for this prop
 > ***Note:*** must add a valid uri to a get request if the **maxIdleTimeInSeconds** prop is > 0
 * WarningComponent
+> optional **FunctionalComponent**<**WarningComponentProps**> to warn the user that their session will expire.
+> ***Note:*** this prop must be a Functional Component that accepts and utilizes a all of the props from **WarningComponentProps**
+> ***Note:*** default is a simple countdown to expiration with an 'I'M STILL HERE' button that makes call to the serverRequestUri
+> and restarts the session expiration timer; in turn extending their session back to the maxIdleTimeInSeconds.
 	- WarningComponentProps
 	>{  
   secondsUntilSessionTimeout: number;  
@@ -112,9 +117,13 @@ The ***<***InnerSceptre***>*** component accepts optional ***InnerSceptreProps**
 }
 
 	- secondsUntilSessionTimeout
-	>
+	> required prop that provides a placeholder for the seconds remaining until session timeout
+	> ***Recommend:*** if providing a custom component, it is encouraged to display this prop somewhere in the component
+	> so the user is aware of how long they have to react before their session expires
 	- serverRequest
-	> 
+	> required prop that provides a placeholder for the **<**InnerSceptre**>** component's serverRequestUri to be called
+	> ***Note:*** if providing a custom component, you must use an onClick
+	> or similar action to call the serverRequest in a useInnerSceptre call to the server
 	
 * ExpiredComponent
 > optional ReactElement to inform the user that their session has expired.
