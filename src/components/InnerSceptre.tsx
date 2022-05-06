@@ -33,6 +33,7 @@ export const InnerSceptre: FC<InnerSceptreWrapperProps> = (
 
     useEffect(() => {
         setMaxIdleTime(maxIdleTimeInSeconds);
+        innerSceptre.get(serverRequestUri).then(restartSessionCountdownTimer);
     }, []);
 
     return (
